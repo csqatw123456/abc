@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测测你的本命CP搭档 - 无穷卤蛋</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FFC107',
+                        secondary: '#FF5722',
+                        dark: '#212121',
+                        light: '#FFF8E1',
+                        cosmic: {
+                            purple: '#7E57C2',
+                            blue: '#2979FF',
+                            pink: '#EC407A',
+                            yellow: '#FFEB3B'
+                        }
+                    },
+                    fontFamily: {
+                        comic: ['"Comic Sans MS"', '"Marker Felt"', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'bounce-slow': 'bounce 3s infinite',
+                        'spin-slow': 'spin 20s linear infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shine': 'shine 1.5s infinite',
+                        'scale': 'scale 0.3s ease forwards'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        shine: {
+                            '0%': { boxShadow: '0 0 5px rgba(255, 193, 7, 0.5)' },
+                            '50%': { boxShadow: '0 0 20px rgba(255, 193, 7, 0.8), 0 0 30px rgba(255, 193, 7, 0.6)' },
+                            '100%': { boxShadow: '0 0 5px rgba(255, 193, 7, 0.5)' }
+                        },
+                        scale: {
+                            '0%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.05)' },
+                            '100%': { transform: 'scale(1.02)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            .text-shadow-lg {
+                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            }
+            .bg-cosmic {
+                background-image: radial-gradient(circle at 20% 30%, rgba(126, 87, 194, 0.8), transparent 60%),
+                                  radial-gradient(circle at 70% 60%, rgba(41, 121, 255, 0.8), transparent 60%);
+            }
+            .star {
+                position: absolute;
+                background-color: white;
+                border-radius: 50%;
+                animation: twinkle 2s infinite ease-in-out;
+            }
+            @keyframes twinkle {
+                0%, 100% { opacity: 0.5; }
+                50% { opacity: 1; }
+            }
+            .comic-border {
+                border: 3px solid #212121;
+                border-radius: 12px;
+                box-shadow: 4px 4px 0 #212121;
+            }
+            .comic-button {
+                @apply comic-border bg-primary text-dark font-bold py-3 px-6 rounded-lg transition-all duration-300 hover:bg-secondary hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-secondary;
+            }
+            .option-card {
+                @apply comic-border bg-white p-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer;
+            }
+            .option-card-selected {
+                @apply border-secondary bg-light animate-shine;
+            }
+            .progress-bar {
+                height: 10px;
+                border-radius: 5px;
+                background: linear-gradient(90deg, #FFC107 0%, #FF5722 100%);
+                transition: width 0.5s ease;
+            }
+            .cosmic-gradient {
+                background: linear-gradient(135deg, #7E57C2 0%, #2979FF 50%, #EC407A 100%);
+            }
+            .comic-title {
+                @apply font-comic text-3xl md:text-4xl font-bold text-dark text-shadow-lg mb-4;
+            }
+            .comic-subtitle {
+                @apply font-comic text-xl md:text-2xl font-bold text-dark text-shadow mb-3;
+            }
+            .comic-text {
+                @apply font-comic text-lg md:text-xl text-dark;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light min-h-screen overflow-x-hidden font-comic">
+    <!-- 星空背景 -->
+    <div id="cosmic-bg" class="fixed inset-0 bg-cosmic z-0"></div>
+    <div id="stars" class="fixed inset-0 z-0 pointer-events-none"></div>
+
+    <!-- 页面容器 -->
+    <div class="relative z-10 min-h-screen flex flex-col">
+        <!-- 加载页 -->
+        <section id="loading-screen" class="fixed inset-0 flex flex-col items-center justify-center z-50">
+    <!-- 背景图（保留） -->
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://sns-webpic-qc.xhscdn.com/202505161950/35bd2e5d848bbe8ee963359764097362/notes_pre_post/1040g3k831hht21r8jie04a60nkusq5vbg597qt8!nc_n_webp_mw_1'); z-index: -1;"></div>
+    
+    <!-- 原有内容 -->
+    <div class="relative z-10 w-64 h-64 mb-8">
+    <h1 class="comic-title text-center max-w-xs mx-auto text-white text-shadow-lg">测测你的本命CP搭档</h1>
+    <div class="w-4/5 max-w-md mt-8 relative z-10">
+        <div class="comic-border bg-white/80 p-2 rounded-full">
+            <div id="loading-bar" class="progress-bar w-0"></div>
+        </div>
+        <p id="loading-text" class="comic-text text-center mt-4 text-white text-shadow">卤蛋正在宇宙中穿梭...</p>
+    </div>
+</section>
+
+        <!-- 开场动画页 -->
+       <section id="intro-screen" class="fixed inset-0 flex flex-col items-center justify-center z-40 p-4 hidden">
+    <!-- 背景图（保留） -->
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://sns-webpic-qc.xhscdn.com/202505161950/6129e6eef750df4cae0aa49ffbae4939/notes_pre_post/1040g3k831hht21r8jikg4a60nkusq5vbgchhm70!nc_n_webp_mw_1"></div>
+    
+    <!-- 标题 -->
+    <h1 class="comic-title text-center mt-12 mb-8 text-white text-shadow-lg relative z-10">欢迎来到无穷卤蛋宇宙</h1>
+    
+    <!-- 中间图片 -->
+    <div class="relative z-10 w-64 h-64 mb-12">
+        <img 
+            src="https://sns-webpic-qc.xhscdn.com/202505161950/82b350c3770bd2a96c0978126f1c5622/notes_pre_post/1040g3k031hhqlvfe3q104a60nkusq5vbpo1e39g!nc_n_webp_mw_1" 
+            alt="卤蛋图标" 
+            class="w-full h-full object-contain animate-float"
+        >
+    </div>
+    
+    <!-- 背景光晕 -->
+    <div class="absolute z-0 w-80 h-80 bg-cosmic rounded-full blur-2xl opacity-50 -mt-16"></div>
+    
+    <button id="start-test" class="comic-button text-xl relative z-10 mt-8">
+        开始测试，寻找你的本命卤蛋搭档
+    </button>
+</section>
+
+
+        <!-- 测试问题页 -->
+        <section id="question-screen" class="flex-1 flex flex-col p-4 md:p-8 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div class="comic-border bg-white p-2 rounded-full w-40">
+                    <div id="progress-bar" class="progress-bar w-1/6"></div>
+                </div>
+                <span id="question-counter" class="comic-text">1/6</span>
+            </div>
+            
+            <div id="question-container" class="flex-1 flex flex-col items-center justify-center">
+                <div class="comic-border bg-white p-6 rounded-xl w-full max-w-md mb-8">
+                    <h2 id="question-text" class="comic-subtitle text-center">早餐CP：早餐时，你会让卤蛋和谁组队？</h2>
+                </div>
+                
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-md">
+                    <!-- 选项将由JS动态生成 -->
+                </div>
+            </div>
+            
+            <div class="flex justify-center mt-8">
+                <button id="next-question" class="comic-button hidden">
+                    下一题 <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 结果页 -->
+        <section id="result-screen" class="fixed inset-0 flex flex-col items-center justify-center p-4 md:p-8 z-30 bg-light hidden">
+            <div class="relative w-full max-w-md mb-8">
+                <div class="absolute -top-6 -right-6 w-24 h-24 bg-cosmic-purple rounded-full opacity-70 blur-xl"></div>
+                <div class="absolute -bottom-6 -left-6 w-24 h-24 bg-cosmic-pink rounded-full opacity-70 blur-xl"></div>
+                
+                <div class="comic-border bg-white p-6 rounded-xl relative z-10">
+                    <h2 class="comic-title text-center mb-4">你的本命卤蛋搭档</h2>
+                    <div class="flex justify-center mb-6">
+                        <div class="relative w-40 h-40">
+                            <img id="result-image" src="https://picsum.photos/seed/result1/300/300" alt="本命卤蛋搭档" class="w-full h-full object-contain rounded-lg">
+                            <div class="absolute -top-3 -right-3 w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-star text-dark text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 id="result-title" class="comic-subtitle text-center mb-3">香辣香脆本命cp爱好者</h3>
+                    <p id="result-text" class="comic-text text-center mb-6">
+                        你追求极致的味觉体验，推荐无穷香辣味卤蛋搭配香脆的食物，如干脆面，香辣过瘾，口感丰富。
+                    </p>
+                    
+                    <div class="cosmic-gradient rounded-lg p-4 mb-6">
+                        <p class="comic-text text-white text-center">
+                            "卤蛋的完美搭档，宇宙级美味组合！"
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="share-result" class="comic-button mb-4">
+                <i class="fa-solid fa-share-alt mr-2"></i> 分享结果
+            </button>
+            <button id="restart-test" class="comic-button bg-white">
+                <i class="fa-solid fa-redo mr-2"></i> 重新测试
+            </button>
+        </section>
+
+        <!-- 分享页 -->
+        <section id="share-screen" class="fixed inset-0 flex flex-col items-center justify-center p-4 md:p-8 z-40 bg-light hidden">
+            <div class="comic-border bg-white p-6 rounded-xl w-full max-w-md mb-8">
+                <h2 class="comic-title text-center mb-6">分享你的本命卤蛋搭档</h2>
+                
+                <div class="flex justify-center mb-8">
+                    <div class="relative w-48 h-48">
+                        <img id="share-image" src="https://picsum.photos/seed/share/300/300" alt="分享图片" class="w-full h-full object-cover rounded-lg">
+                        <div class="absolute inset-0 bg-dark/50 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-qrcode text-white text-5xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comic-border bg-light p-4 rounded-lg mb-6">
+                    <p id="share-text" class="comic-text text-center">
+                        快来测测你的无穷卤蛋本命cp搭档，看看谁和你口味一致！
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-4 gap-4 w-full max-w-xs mb-8">
+                    <button class="comic-button bg-[#1DA1F2] text-white p-3 rounded-lg">
+                        <i class="fa-brands fa-twitter text-xl"></i>
+                    </button>
+                    <button class="comic-button bg-[#4267B2] text-white p-3 rounded-lg">
+                        <i class="fa-brands fa-facebook text-xl"></i>
+                    </button>
+                    <button class="comic-button bg-[#25D366] text-white p-3 rounded-lg">
+                        <i class="fa-brands fa-whatsapp text-xl"></i>
+                    </button>
+                    <button class="comic-button bg-[#E60023] text-white p-3 rounded-lg">
+                        <i class="fa-brands fa-pinterest text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="comic-border bg-white p-3 rounded-lg flex items-center">
+                    <input type="text" id="share-link" value="https://example.com/egg-test" readonly class="flex-1 comic-text border-none outline-none bg-transparent">
+                    <button id="copy-link" class="text-primary hover:text-secondary transition-colors">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <button id="back-to-result" class="comic-button bg-white">
+                <i class="fa-solid fa-arrow-left mr-2"></i> 返回结果
+            </button>
+        </section>
+    </div>
+
+    <script>
+        // 创建星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starsCount = 50;
+            
+            for (let i = 0; i < starsCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // 随机位置、大小和动画延迟
+                const size = Math.random() * 3 + 1;
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const delay = Math.random() * 5;
+                
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                star.style.animationDelay = `${delay}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 问题数据
+        const questions = [
+            {
+                text: "早餐CP：早餐时，你会让卤蛋和谁组队？",
+                options: [
+                    { id: 'A', text: "油条", desc: "酥脆油条蘸卤蛋汁，碳水+蛋白的快乐暴击！", image: "https://sns-webpic-qc.xhscdn.com/202505161635/e4bc4bd01b6350eeca65ac3d1d4c75fa/1040g00831agdqa9l726g5po2dq77e5cful06eg0!nc_n_webp_mw_1" },
+                    { id: 'B', text: "白粥", desc: "温柔白粥配卤蛋，清晨暖胃CP王者", image: "https://sns-webpic-qc.xhscdn.com/202505161636/a3353c554dc364cd12928acf23ca4cb3/1040g2sg31bqfq8870k1g5norrepg80c597optbo!nc_n_webp_mw_1" },
+                    { id: 'C', text: "手抓饼", desc: "卤蛋藏进饼里，一口咬出层次感", image: "https://sns-webpic-qc.xhscdn.com/202505161636/36ce640a6256507828f4478cd4098338/1040g2sg31f8028ubme405pujvn0ho9cr3n8vvoo!nc_n_webp_mw_1" },
+                    { id: 'D', text: "豆浆", desc: "咸甜碰撞，解锁早餐新滋味", image: "https://sns-webpic-qc.xhscdn.com/202505161637/d209e63cd8131f88909879978bde7105/1040g2sg317d11seak4ig5n5c7solncj9bl69io8!nc_n_webp_mw_1" }
+                ]
+            },
+            {
+                text: "零食搭档：追剧时，卤蛋的最佳零食拍档是？",
+                options: [
+                    { id: 'A', text: "薯片", desc: "咔嚓！咸香组合让追剧更香", image: "https://sns-webpic-qc.xhscdn.com/202505161637/1e374c434bb290a739f656714244334e/1040g008310eig5956e004a4t0mtd07k5pkijpg0!nc_n_webp_mw_1" },
+                    { id: 'B', text: "辣条", desc: "辣度升级！双倍过瘾的神仙搭配", image: "https://sns-webpic-qc.xhscdn.com/202505161638/322845515843589b271f28b31baab689/1040g00830pemufqulq005ns6pufg8upbcctfa6o!nc_n_webp_mw_1" },
+                    { id: 'C', text: "坚果", desc: "一软一硬，口感交响曲", image: "https://sns-webpic-qc.xhscdn.com/202505161638/2cdcd4caf0c761a41bda4264b201c2e2/1040g2sg314a33f376i604a77oi07io7b7jbhar0!nc_n_webp_mw_1" },
+                    { id: 'D', text: "果冻", desc: "反差萌CP，甜咸混搭超上头", image: "https://sns-webpic-qc.xhscdn.com/202505161639/b2bdb81f41d7e9260ca992c2d00f5701/1040g008312u61v4glk505n1jbf7hlgqoeqmg780!nc_n_webp_mw_1" }
+                ]
+            },
+            {
+                text: "主食组合：午餐用卤蛋搭配哪种主食？",
+                options: [
+                    { id: 'A', text: "泡面", desc: "吸满汤汁的卤蛋，泡面灵魂伴侣", image: "https://sns-webpic-qc.xhscdn.com/202505161639/9b9bdd32cf8211ce59304748a3ad0377/1040g008315l0h4ecgu005p5cutl2qtmo9krr4b8!nc_n_webp_mw_1" },
+                    { id: 'B', text: "螺蛳粉", desc: "重口味联盟，嗦粉快乐翻倍", image: "https://sns-webpic-qc.xhscdn.com/202505161639/f6ba0e2dc9e0e26eb93785743870006c/1040g2sg31cpsp0qf107g5p1fgl2l24n6vcnpg7g!nc_n_webp_mw_1" },
+                    { id: 'C', text: "寿司", desc: "中西合璧！卤蛋跨界成日料新宠", image: "https://sns-webpic-qc.xhscdn.com/202505161640/44cee4a0275b5fae79aecc0a69c2c7f5/1040g2sg31at2us2umo705ppruoa7doaotrkol50!nc_n_webp_mw_1" },
+                    { id: 'D', text: "汉堡", desc: "卤蛋塞进汉堡，中式风味惊艳味蕾", image: "https://sns-webpic-qc.xhscdn.com/202505161641/a4134104e3fecaa6ee5f3107b2980209/1040g00831du5iousge0049932blceftd0jnvd5g!nc_n_webp_mw_1" }
+                ]
+            },
+            {
+                text: "宵夜CP：深夜解馋，卤蛋和谁锁死？",
+                options: [
+                    { id: 'A', text: "啤酒", desc: "一口卤蛋一口酒，快乐宵夜全拥有", image: "https://sns-webpic-qc.xhscdn.com/202505161641/d33e9227e48fbab6eb81b2aedcac2841/1040g2sg31apomrtbni705o5j9lfgbs3mfl35g48!nc_n_webp_mw_1" },
+                    { id: 'B', text: "奶茶", desc: "甜咸混搭，反套路宵夜王者", image: "https://sns-webpic-qc.xhscdn.com/202505161642/e1fea6f3266f29032c7b880c849ecc20/spectrum/1040g0k0319dgqsmk5q005o0h14d09d4a6nv61b8!nc_n_webp_mw_1" },
+                    { id: 'C', text: "烤串", desc: "烧烤摊隐藏吃法，解锁双倍满足", image: "https://sns-webpic-qc.xhscdn.com/202505161643/0a7865920031689933b007e429b07c0d/1040g2sg31c6eqle5h2205ppklspn39u76pj8k10!nc_n_webp_mw_1" },
+                    { id: 'D', text: "冰淇淋", desc: "冰火碰撞！黑暗料理界黑马", image: "https://sns-webpic-qc.xhscdn.com/202505161644/10083df10641743fb27e04e9017bf3f7/1040g2sg317m9900dk67g5plv41eiubchcrd5ia8!nc_n_webp_mw_1" }
+                ]
+            },
+            {
+                text: "创意吃法：脑洞大开！你会用卤蛋DIY什么？",
+                options: [
+                    { id: 'A', text: "三明治", desc: "夹进全麦面包，健康又美味", image: "https://sns-webpic-qc.xhscdn.com/202505161645/b010d1a6c543c14ae4ab7b9c3a3c9f9a/1040g2sg31cuoh9iq0m705n465mplg8p9fl74ofo!nc_n_webp_mw_1" },
+                    { id: 'B', text: "沙拉", desc: "卤蛋切片，为沙拉注入灵魂", image: "https://sns-webpic-qc.xhscdn.com/202505161646/4fc1742206106aa063c7d973b98de8cf/1040g008317dbddma441g5pi49eb1oq9lsipnemo!nc_n_webp_mw_1" },
+                    { id: 'C', text: "麻辣烫", desc: "隐藏菜单！麻辣烫的终极彩蛋", image: "https://sns-webpic-qc.xhscdn.com/202505161646/ff83b00d911bab6917ab41fe7078549d/1040g008312mso8lsii6g5p6n1fv0admc4b863bg!nc_n_webp_mw_1" },
+                    { id: 'D', text: "饭团", desc: "捏成咸香饭团，一口一个停不下", image: "https://sns-webpic-qc.xhscdn.com/202505161647/dbbaf3f01ec5d64c6b9c6960011cd53c/1040g0083129ilo3b5e4g4bjtcaoo25fg0o3lic8!nc_n_webp_mw_1" }
+                ]
+            },
+            {
+                text: "口味升级：给卤蛋加点料，你选？",
+                options: [
+                    { id: 'A', text: "剁椒", desc: "火辣暴击！重口味爱好者狂喜", image: "https://sns-webpic-qc.xhscdn.com/202505161648/085cb0ce86ae0bb69fb7a87b1b0f54bc/e88c0487-62fc-362a-ad97-3943038be2c8!nc_n_webp_mw_1" },
+                    { id: 'B', text: "芝士", desc: "拉丝魔法！奶香卤蛋超治愈", image: "https://sns-webpic-qc.xhscdn.com/202505161648/4965e456b36486d2bf26e933ba643d34/1040g2sg311iiro926e005p3c80m44vrem4ss2k8!nc_n_webp_mw_1" },
+                    { id: 'C', text: "蜂蜜", desc: "甜咸交织，解锁神仙口感", image: "https://sns-webpic-qc.xhscdn.com/202505161649/1274f15c90b02fb710d8798bf69c935a/1040g2sg31ddrq2450ec05pb1km24fmc2h2j85c8!nc_n_webp_mw_1" },
+                    { id: 'D', text: "话梅", desc: "酸甜咸三重奏，味蕾过山车", image: "https://sns-webpic-qc.xhscdn.com/202505161649/10b85a27ba4864edfa177dc5ddbb342c/1040g00831681dsm1hc1g5ocfkjr41li1dq4utj0!nc_n_webp_mw_1" }
+                ]
+            }
+        ];
+
+        // 结果数据
+        const results = {
+            A: {
+                title: "香辣香脆本命cp爱好者",
+                text: "你追求极致的味觉体验，推荐无穷香辣味卤蛋搭配香脆的食物，如干脆面，香辣过瘾，口感丰富。",
+                image: "https://sns-webpic-qc.xhscdn.com/202505161816/ae825c4790b83c70b2946cb4a0685afb/1040g00831hhquvm73i604a60nkusq5vbpn4mta0!nc_n_webp_mw_1",
+                shareImage: "https://picsum.photos/seed/share1/300/300"
+            },
+            B: {
+                title: "五香软糯本命cp爱好者",
+                text: "你偏爱经典与温暖的口感，推荐无穷五香味卤蛋搭配软糯的米饭，卤香浓郁，一口满足。",
+                image: "https://sns-webpic-qc.xhscdn.com/202505161816/9ec00f368b5455833789391e9d582619/notes_pre_post/1040g3k031hhqlvfe3q404a60nkusq5vb3031jd0!nc_n_webp_mw_1",
+                shareImage: "https://picsum.photos/seed/share2/300/300"
+            },
+            C: {
+                title: "盐焗有嚼劲本命cp爱好者",
+                text: "你喜欢独特风味与嚼劲，推荐无穷盐焗味卤蛋搭配有嚼劲的面包，独特的盐焗风味，越嚼越香。",
+                image: "https://sns-webpic-qc.xhscdn.com/202505161816/45051cb2afaf775a568007c8106c700e/notes_pre_post/1040g3k031hhqlvfe3q504a60nkusq5vbru650v0!nc_n_webp_mw_1 ",
+                shareImage: "https://picsum.photos/seed/share3/300/300"
+            },
+            D: {
+                title: "甜辣酥脆本命cp爱好者",
+                text: "你喜欢创新与反差的口感，推荐无穷甜辣味卤蛋搭配酥脆的饼干，甜辣与酥脆的完美结合，令人回味无穷。",
+                image: "https://sns-webpic-qc.xhscdn.com/202505161819/3bddf502d2fb393446ee84a21f51f3ce/notes_pre_post/1040g3k031hhqlvfe3q3g4a60nkusq5vbt6e8s68!nc_n_webp_mw_1",
+                shareImage: "https://picsum.photos/seed/share4/300/300"
+            }
+        };
+
+        // 当前状态
+        let currentQuestion = 0;
+        let answers = [];
+        let selectedOption = null;
+
+        // DOM 元素
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingBar = document.getElementById('loading-bar');
+        const loadingText = document.getElementById('loading-text');
+        const introScreen = document.getElementById('intro-screen');
+        const startTestBtn = document.getElementById('start-test');
+        const questionScreen = document.getElementById('question-screen');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextQuestionBtn = document.getElementById('next-question');
+        const questionCounter = document.getElementById('question-counter');
+        const progressBar = document.getElementById('progress-bar');
+        const resultScreen = document.getElementById('result-screen');
+        const resultTitle = document.getElementById('result-title');
+        const resultText = document.getElementById('result-text');
+        const resultImage = document.getElementById('result-image');
+        const shareResultBtn = document.getElementById('share-result');
+        const restartTestBtn = document.getElementById('restart-test');
+        const shareScreen = document.getElementById('share-screen');
+        const shareImage = document.getElementById('share-image');
+        const shareText = document.getElementById('share-text');
+        const shareLink = document.getElementById('share-link');
+        const copyLinkBtn = document.getElementById('copy-link');
+        const backToResultBtn = document.getElementById('back-to-result');
+
+        // 初始化
+        function init() {
+            createStars();
+            simulateLoading();
+        }
+
+        // 模拟加载
+        function simulateLoading() {
+            let progress = 0;
+            const loadingTexts = [
+                "卤蛋正在宇宙中穿梭...",
+                "收集美味能量...",
+                "寻找完美搭档...",
+                "准备测试就绪..."
+            ];
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    setTimeout(() => {
+                        loadingScreen.classList.add('opacity-0', 'pointer-events-none');
+                        setTimeout(() => {
+                            loadingScreen.classList.add('hidden');
+                            introScreen.classList.remove('hidden');
+                            playBGM();
+                        }, 500);
+                    }, 500);
+                }
+                
+                loadingBar.style.width = `${progress}%`;
+                
+                if (progress < 25) {
+                    loadingText.textContent = loadingTexts[0];
+                } else if (progress < 50) {
+                    loadingText.textContent = loadingTexts[1];
+                } else if (progress < 75) {
+                    loadingText.textContent = loadingTexts[2];
+                } else {
+                    loadingText.textContent = loadingTexts[3];
+                }
+            }, 200);
+        }
+
+        // 播放背景音乐
+        function playBGM() {
+            // 实际项目中可以添加背景音乐
+            // const bgm = new Audio('bgm.mp3');
+            // bgm.loop = true;
+            // bgm.play();
+        }
+
+        // 开始测试
+        function startTest() {
+            introScreen.classList.add('hidden');
+            questionScreen.classList.remove('hidden');
+            loadQuestion(0);
+        }
+
+        // 加载问题
+        function loadQuestion(index) {
+            if (index >= questions.length) {
+                calculateResult();
+                return;
+            }
+            
+            const question = questions[index];
+            questionText.textContent = question.text;
+            questionCounter.textContent = `${index + 1}/${questions.length}`;
+            progressBar.style.width = `${((index + 1) / questions.length) * 100}%`;
+            
+            // 清空选项
+            optionsContainer.innerHTML = '';
+            
+            // 添加选项
+            question.options.forEach(option => {
+                const optionCard = document.createElement('div');
+                optionCard.className = 'option-card';
+                optionCard.dataset.id = option.id;
+                
+                optionCard.innerHTML = `
+                    <div class="relative aspect-square mb-3">
+                        <img src="${option.image}" alt="${option.text}" class="w-full h-full object-cover rounded-lg">
+                        <div class="absolute inset-0 bg-dark/20 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                            <i class="fa-solid fa-check text-white text-3xl"></i>
+                        </div>
+                    </div>
+                    <h3 class="comic-subtitle text-center mb-1">${option.text}</h3>
+                    <p class="comic-text text-center text-sm">${option.desc}</p>
+                `;
+                
+                optionCard.addEventListener('click', () => selectOption(optionCard, option.id));
+                optionsContainer.appendChild(optionCard);
+            });
+            
+            // 重置选中状态
+            selectedOption = null;
+            nextQuestionBtn.classList.add('hidden');
+        }
+
+        // 选择选项
+        function selectOption(card, optionId) {
+            // 移除之前选中的选项样式
+            if (selectedOption) {
+                selectedOption.classList.remove('option-card-selected');
+                selectedOption.querySelector('.fa-check').parentElement.classList.add('opacity-0');
+            }
+            
+            // 添加选中样式
+            card.classList.add('option-card-selected');
+            card.querySelector('.fa-check').parentElement.classList.remove('opacity-0');
+            
+            // 保存选中选项
+            selectedOption = card;
+            answers[currentQuestion] = optionId;
+            
+            // 显示下一步按钮
+            nextQuestionBtn.classList.remove('hidden');
+        }
+
+        // 下一题
+        function nextQuestion() {
+            if (selectedOption) {
+                currentQuestion++;
+                loadQuestion(currentQuestion);
+            }
+        }
+
+        // 计算结果
+        function calculateResult() {
+            // 统计每个选项的数量
+            const counts = { A: 0, B: 0, C: 0, D: 0 };
+            answers.forEach(answer => {
+                counts[answer]++;
+            });
+            
+            // 找出最多的选项
+            let maxCount = 0;
+            let resultKey = 'A';
+            
+            for (const key in counts) {
+                if (counts[key] > maxCount) {
+                    maxCount = counts[key];
+                    resultKey = key;
+                }
+            }
+            
+            // 显示结果
+            const result = results[resultKey];
+            resultTitle.textContent = result.title;
+            resultText.textContent = result.text;
+            resultImage.src = result.image;
+            shareImage.src = result.shareImage;
+            
+            questionScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+        }
+
+        // 分享结果
+        function shareResult() {
+            resultScreen.classList.add('hidden');
+            shareScreen.classList.remove('hidden');
+        }
+
+        // 复制链接
+        function copyLink() {
+            shareLink.select();
+            document.execCommand('copy');
+            
+            const originalText = copyLinkBtn.innerHTML;
+            copyLinkBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            
+            setTimeout(() => {
+                copyLinkBtn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        // 返回结果
+        function backToResult() {
+            shareScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+        }
+
+        // 重新测试
+        function restartTest() {
+            resultScreen.classList.add('hidden');
+            currentQuestion = 0;
+            answers = [];
+            selectedOption = null;
+            loadQuestion(0);
+            questionScreen.classList.remove('hidden');
+        }
+
+        // 事件监听
+        startTestBtn.addEventListener('click', startTest);
+        nextQuestionBtn.addEventListener('click', nextQuestion);
+        shareResultBtn.addEventListener('click', shareResult);
+        restartTestBtn.addEventListener('click', restartTest);
+        copyLinkBtn.addEventListener('click', copyLink);
+        backToResultBtn.addEventListener('click', backToResult);
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>    
